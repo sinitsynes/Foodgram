@@ -23,7 +23,7 @@ class Tag(models.Model):
         return self.name
 
 
-class Ingredient(models.Mode):
+class Ingredient(models.Model):
     name = models.CharField(
         max_length=50,
         verbose_name='Название ингредиента'
@@ -59,7 +59,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('-id')
+        ordering = ('-id',)
 
     def __str__(self):
         return self.name
