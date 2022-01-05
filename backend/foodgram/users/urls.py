@@ -1,20 +1,9 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import token_obtain_pair, token_refresh
 
-from .views import CustomUserViewSet
-
-
-
-# router_v1 = DefaultRouter()
-# router_v1.register('users', UserViewSet, basename='users')
 
 urlpatterns = [
-    # path('', include(router_v1.urls)),
-    path(
-        r'^users/$',
-        CustomUserViewSet.as_view({'get': 'list'}),
-        name='user-list',
-    ),
     path('', include('djoser.urls')),
+    path('/auth/token/login/', token_obtain_pair, name='token_obtain'),
+    path('/auth/token/refresh/', token_refresh, name='token_refresh')
 ]
-
