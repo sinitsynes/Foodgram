@@ -7,6 +7,7 @@ from .models import User
 
 User = get_user_model()
 
+
 @admin.register(User)
 class UserAdmin(UserAdmin):
     list_display = ('username', 'email', 'role', 'is_superuser')

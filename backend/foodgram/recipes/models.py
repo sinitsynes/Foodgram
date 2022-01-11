@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -17,7 +18,10 @@ class Tag(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=['name',])]
+        indexes = [models.Index(fields=['name', ])]
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ('id',)
 
     def __str__(self):
         return self.name
@@ -34,13 +38,20 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=['name',])]
+        indexes = [models.Index(fields=['name', ])]
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        ordering = ('id',)
 
     def __str__(self):
         return self.name
 
 
 class Recipe(models.Model):
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
     name = models.CharField(
         max_length=50,
         verbose_name='Название рецепта'
@@ -49,8 +60,14 @@ class Recipe(models.Model):
         max_length=300,
         verbose_name='Описание рецепта'
     )
-    cooking_time = models.PositiveSmallIntegerField(
+    cooking_time = models.DurationField(
         verbose_name='Время готовки'
+    )
+    image = models.ImageField(
+        upload_to='recipes/',
+        verbose_name='Картинка',
+        blank=True,
+        null=True
     )
     tags = models.ManyToManyField(Tag)
     ingredients = models.ManyToManyField(Ingredient)
@@ -59,8 +76,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('-id',)
+        ordering = ('id',)
 
     def __str__(self):
         return self.name
-

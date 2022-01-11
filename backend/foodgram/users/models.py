@@ -27,6 +27,10 @@ class User(AbstractUser):
         unique=True,
         verbose_name='Email'
     )
+    # для получения токена по email вместо username
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
     role = models.CharField(
         max_length=16,
         choices=ROLES,
