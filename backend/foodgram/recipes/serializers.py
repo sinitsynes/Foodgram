@@ -5,7 +5,8 @@ import imghdr
 from django.core.files.images import ImageFile
 from rest_framework import serializers
 
-from .models import Ingredient, Recipe, Tag
+from .models import Ingredient, Recipe, RecipeIngredients, Tag
+from users.serializers import UserSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -36,19 +37,65 @@ class Base64ToImageField(serializers.ImageField):
         return extension
 
 
-class RecipeSerializer(serializers.ModelSerializer):
-    # image = Base64ToImageField()
-    
-
-    class Meta:
-        fields = (
-            'ingredients', 'tags', 'name', 'text', 'cooking_time'
-        )
-        model = Recipe
-
-
 class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
         model = Ingredient
+
+
+# сериализатор чтения рецепта
+class RecipeRetrieveSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+    author = UserSerializer(read_only=True)
+    ingredients = IngredientSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'name',
+            'text',
+            'cooking_time'
+        )
+
+
+# сериализаторы для создания рецепта
+class RecipeTagDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ('id',)
+
+
+class RecipeIngredientDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RecipeIngredients
+        fields = ('id', 'amount')
+
+
+class RecipeDetailSerializer(serializers.ModelSerializer):
+    # image = Base64ToImageField()
+    tags = RecipeTagDetailSerializer(many=True)
+    ingredients = RecipeIngredientDetailSerializer(many=True)
+
+    class Meta:
+        fields = (
+            'author', 'ingredients', 'tags', 'name', 'text', 'cooking_time'
+        )
+        model = Recipe
+        read_only_fields = ('author',)
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        for tag in tags:
+            current_tag, value = Tag.objects.get(**tag)
+            recipe.tag.objects.create(
+                tag=current_tag, recipe=recipe
+            )
+        return recipe

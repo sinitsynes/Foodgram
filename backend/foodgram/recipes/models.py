@@ -50,10 +50,11 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='recipes'
     )
     name = models.CharField(
-        max_length=50,
+        max_length=200,
         verbose_name='Название рецепта'
     )
     text = models.TextField(
@@ -69,9 +70,10 @@ class Recipe(models.Model):
         blank=True,
         null=True
     )
-    tags = models.ManyToManyField(Tag)
-    ingredients = models.ManyToManyField(Ingredient)
-    ingredients_amount = models.PositiveSmallIntegerField()
+    tags = models.ManyToManyField(Tag, related_name='recipes')
+    ingredients = models.ManyToManyField(
+        Ingredient, through='RecipeIngredients', related_name='recipes'
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -80,3 +82,13 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RecipeIngredients(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(
+        Ingredient, on_delete=models.CASCADE
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество'
+    )
