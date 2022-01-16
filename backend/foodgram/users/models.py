@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import F, Q
 from django.contrib.auth.models import AbstractUser
 
 
@@ -53,3 +54,18 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == 'admin' or self.is_superuser
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(User, 'Подписчик', related_name='follower')
+    author = models.ForeignKey(User, 'Инфлюенсер', related_name='following')
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'author'), name='unique_following'
+            ),
+            models.CheckConstraint(
+                check=~Q(user=F('author')), name='no_self_following'
+            )
+        )

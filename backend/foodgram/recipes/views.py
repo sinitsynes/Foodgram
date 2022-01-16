@@ -5,7 +5,7 @@ from .models import Ingredient, Recipe, Tag
 from .serializers import (
     RecipeRetrieveSerializer,
     TagSerializer,
-    RecipeDetailSerializer,
+    RecipeCreateSerializer,
     IngredientSerializer
     )
 from .permissions import IsAdminOrReadOnly
@@ -23,7 +23,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return RecipeDetailSerializer
+            return RecipeCreateSerializer
         if self.request.method == 'GET':
             return RecipeRetrieveSerializer
 

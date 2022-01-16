@@ -5,6 +5,7 @@ class UserCreateSerializer(UserCreateSerializer):
 
     class Meta(UserCreateSerializer.Meta):
         fields = ('username', 'email', 'first_name', 'last_name', 'password')
+        extra_kwargs = {'error_messages': {'required': 'Обязательное поле'}}
 
 
 class UserSerializer(UserSerializer):

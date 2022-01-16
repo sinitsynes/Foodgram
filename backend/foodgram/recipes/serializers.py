@@ -48,54 +48,86 @@ class IngredientSerializer(serializers.ModelSerializer):
 class RecipeRetrieveSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
-    ingredients = IngredientSerializer(many=True, read_only=True)
+    ingredients = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Recipe
         fields = (
             'id',
+            'name',
             'tags',
             'author',
             'ingredients',
-            'name',
             'text',
             'cooking_time'
         )
 
+    def get_ingredients(self, obj):
+        queryset = RecipeIngredients.objects.filter(recipe=obj)
+        return RecipeIngredientReadSerializer(queryset, many=True).data
 
-# сериализаторы для создания рецепта
-class RecipeTagDetailSerializer(serializers.ModelSerializer):
+
+class RecipeIngredientReadSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    amount = serializers.IntegerField()
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit')
+    name = serializers.ReadOnlyField(source='ingredient.name')
 
     class Meta:
-        model = Tag
-        fields = ('id',)
+        model = RecipeIngredients
+        fields = ('id', 'name', 'amount', 'measurement_unit')
 
 
-class RecipeIngredientDetailSerializer(serializers.ModelSerializer):
+# сериализатор создания рецепта
+class RecipeIngredientsWriteSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredients
         fields = ('id', 'amount')
 
 
-class RecipeDetailSerializer(serializers.ModelSerializer):
-    # image = Base64ToImageField()
-    tags = RecipeTagDetailSerializer(many=True)
-    ingredients = RecipeIngredientDetailSerializer(many=True)
+class RecipeCreateSerializer(serializers.ModelSerializer):
+    image = Base64ToImageField()
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True
+    )
+    ingredients = RecipeIngredientsWriteSerializer(many=True, required=True)
 
     class Meta:
         fields = (
-            'author', 'ingredients', 'tags', 'name', 'text', 'cooking_time'
+            'author',
+            'ingredients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
         )
         model = Recipe
         read_only_fields = ('author',)
 
     def create(self, validated_data):
+        author = self.context.get('request').user
+        ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
-        for tag in tags:
-            current_tag, value = Tag.objects.get(**tag)
-            recipe.tag.objects.create(
-                tag=current_tag, recipe=recipe
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        for ingredient in ingredients:
+            RecipeIngredients.objects.get_or_create(
+                recipe=recipe,
+                amount=ingredient.get('amount'),
+                ingredient=ingredient.get('id')
             )
+        for tag in tags:
+            recipe.tags.add(tag)
         return recipe
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return RecipeRetrieveSerializer(
+            instance, context=context
+        ).data
