@@ -6,7 +6,7 @@ SECRET_KEY = 'rt7vf94wd%ujwu5mu3$ys9e+w9h$xuea8^b%q$^rah(_2#l=ko'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -85,9 +85,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'],
+
+    'DEFAULT_PAGINATION_CLASS': 'recipes.pagination.RecipesPagination',
 }
+
 
 DJOSER = {
     'SERIALIZERS': {
@@ -119,3 +122,6 @@ AUTH_USER_MODEL = 'users.User'
 # Uploaded Media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')

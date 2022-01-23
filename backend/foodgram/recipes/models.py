@@ -9,7 +9,7 @@ class Tag(models.Model):
         unique=True
     )
     color = models.CharField(
-        max_length=6,
+        max_length=7,
         verbose_name='HEX-код цвета',
         unique=True
     )
@@ -33,7 +33,7 @@ class Ingredient(models.Model):
         verbose_name='Название ингредиента'
     )
     measurement_unit = models.CharField(
-        max_length=5,
+        max_length=20,
         verbose_name='Единица измерения'
     )
 
@@ -92,3 +92,40 @@ class RecipeIngredients(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество'
     )
+
+    class Meta:
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='favorites')
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorites'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные рецепты'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='cart'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='cart'
+    )
+
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины пользователей'
