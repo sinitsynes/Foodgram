@@ -248,12 +248,6 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('user', 'recipe')
-    #     validators = [
-    #         UniqueTogetherValidator(
-    #             queryset=ShoppingCart.objects.all(),
-    #             fields=('user', 'recipe')
-    #         )
-    #     ]
 
     def to_representation(self, instance):
         return ShortRecipeListSerializer(instance.recipe).data
