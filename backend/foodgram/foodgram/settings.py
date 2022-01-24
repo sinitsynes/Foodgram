@@ -1,8 +1,12 @@
 import os
 
+from dotenv import load_dotenv
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'rt7vf94wd%ujwu5mu3$ys9e+w9h$xuea8^b%q$^rah(_2#l=ko'
+load_dotenv()
+
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
@@ -53,13 +57,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('POSTGRES_USER'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT')
+            }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -119,7 +134,6 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'users.User'
 
-# Uploaded Media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

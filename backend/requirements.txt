@@ -6,3 +6,4 @@ psycopg2-binary==2.8.6
 pillow
 djoser
 gunicorn==20.0.4
+python-dotenv

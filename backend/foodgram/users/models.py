@@ -4,9 +4,12 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    ROLES = (
-        ('user', 'Пользователь'),
-        ('admin', 'Администратор')
+    USER = 'Пользователь'
+    ADMIN = 'Администратор'
+
+    ROLE_CHOICES = (
+        (USER, 'Пользователь'),
+        (ADMIN, 'Администратор')
     )
 
     username = models.CharField(
@@ -28,14 +31,14 @@ class User(AbstractUser):
         unique=True,
         verbose_name='Email'
     )
-    # для получения токена по email вместо username
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     role = models.CharField(
         max_length=16,
-        choices=ROLES,
-        default='user',
+        choices=ROLE_CHOICES,
+        default=USER,
         verbose_name='Роль'
     )
 
@@ -49,11 +52,11 @@ class User(AbstractUser):
 
     @property
     def is_user(self):
-        return self.role == 'user'
+        return self.role == self.USER
 
     @property
     def is_admin(self):
-        return self.role == 'admin' or self.is_superuser
+        return self.role == self.ADMIN or self.is_superuser
 
 
 class Follow(models.Model):

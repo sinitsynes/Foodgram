@@ -61,7 +61,7 @@ class Recipe(models.Model):
         max_length=300,
         verbose_name='Описание рецепта'
     )
-    cooking_time = models.DurationField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время готовки'
     )
     image = models.ImageField(
@@ -72,7 +72,7 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(Tag, related_name='recipes')
     ingredients = models.ManyToManyField(
-        Ingredient, through='RecipeIngredients', related_name='recipes'
+        Ingredient, through='RecipeIngredient', related_name='recipes'
     )
 
     class Meta:
@@ -84,7 +84,7 @@ class Recipe(models.Model):
         return self.name
 
 
-class RecipeIngredients(models.Model):
+class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE
@@ -96,6 +96,11 @@ class RecipeIngredients(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient'),
+                name='unique_ingr_in_recipe'),
+        )
 
 
 class Favorite(models.Model):
@@ -112,6 +117,11 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные рецепты'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_fav_recipe'),
+        )
 
 
 class ShoppingCart(models.Model):
@@ -129,3 +139,8 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины пользователей'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('recipe', 'user'),
+                name='unique_recipe_in_cart'),
+        )
