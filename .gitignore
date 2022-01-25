@@ -137,7 +137,7 @@ backend/foodgram/static/
 
 
 #настройки среды
-.vscode/settings.json
+.vscode/
 
 .zip
 sk.txt
