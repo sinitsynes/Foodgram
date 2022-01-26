@@ -29,7 +29,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=50,
+        max_length=200,
         verbose_name='Название ингредиента'
     )
     measurement_unit = models.CharField(
@@ -58,10 +58,10 @@ class Recipe(models.Model):
         verbose_name='Название рецепта'
     )
     text = models.TextField(
-        max_length=300,
+        max_length=1000,
         verbose_name='Описание рецепта'
     )
-    cooking_time = models.PositiveSmallIntegerField(
+    cooking_time = models.IntegerField(
         verbose_name='Время готовки'
     )
     image = models.ImageField(
@@ -89,7 +89,7 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE
     )
-    amount = models.PositiveSmallIntegerField(
+    amount = models.IntegerField(
         verbose_name='Количество'
     )
 
