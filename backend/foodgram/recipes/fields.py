@@ -1,6 +1,6 @@
 import base64
-import uuid
 import imghdr
+import uuid
 
 from django.core.files.base import ContentFile
 from rest_framework import serializers

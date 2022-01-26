@@ -1,22 +1,19 @@
-from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework import filters
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .filters import RecipeFilter, IngredientFilter
-from .models import (Favorite, Ingredient,
-                     Recipe, RecipeIngredient,
+from .filters import IngredientFilter, RecipeFilter
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
-from .serializers import (ShoppingCartSerializer, FavoriteSerializer,
-                          RecipeRetrieveSerializer, TagSerializer,
-                          RecipeCreateSerializer,
-                          IngredientSerializer)
 from .permissions import IsAuthorOrStaffOrReadOnly
+from .serializers import (FavoriteSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeRetrieveSerializer,
+                          ShoppingCartSerializer, TagSerializer)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
