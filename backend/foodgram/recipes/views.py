@@ -9,19 +9,13 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .filters import RecipeFilter, IngredientFilter
-from .models import (
-    Favorite, Ingredient,
-    Recipe, RecipeIngredient,
-    ShoppingCart, Tag
-    )
-from .serializers import (
-    ShoppingCartSerializer,
-    FavoriteSerializer,
-    RecipeRetrieveSerializer,
-    TagSerializer,
-    RecipeCreateSerializer,
-    IngredientSerializer
-    )
+from .models import (Favorite, Ingredient,
+                     Recipe, RecipeIngredient,
+                     ShoppingCart, Tag)
+from .serializers import (ShoppingCartSerializer, FavoriteSerializer,
+                          RecipeRetrieveSerializer, TagSerializer,
+                          RecipeCreateSerializer,
+                          IngredientSerializer)
 from .permissions import IsAuthorOrStaffOrReadOnly
 
 
@@ -91,8 +85,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = recipes.values(
             'ingredient__name',
             'ingredient__measurement_unit',
-            ).annotate(total=Sum(
-                'amount'))
+        ).annotate(total=Sum('amount'))
         shopping_cart = []
         for ingredient in ingredients:
             name = ingredient['ingredient__name']
