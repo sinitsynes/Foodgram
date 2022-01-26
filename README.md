@@ -9,7 +9,12 @@
 -установить зависимости в backend/requirements.txt
 -в папке infra развернуть фронтенд для проекта: docker-compose up -d
 ```
+Наполнить базу данных готовым списком ингредиентов можно при помощи команды
+```
+python manage.py import_ingredients
+```
 
+Текущие логин и пароль для администраторской учетной записи:
 login: admin@example.com
 pass: admin
 
