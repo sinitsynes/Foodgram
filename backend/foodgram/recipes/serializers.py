@@ -35,7 +35,6 @@ class RecipeRetrieveSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField(read_only=True)
-    image = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
@@ -57,9 +56,6 @@ class RecipeRetrieveSerializer(serializers.ModelSerializer):
     def get_ingredients(self, obj):
         queryset = RecipeIngredient.objects.filter(recipe=obj)
         return RecipeIngredientReadSerializer(queryset, many=True).data
-
-    def get_image(self, obj):
-        return obj.image
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
