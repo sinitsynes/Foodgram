@@ -9,10 +9,8 @@ from rest_framework import serializers
 class Base64ToImageField(serializers.ImageField):
 
     def to_internal_value(self, data):
-        if isinstance(data, str):
-            if 'data:' in data and ';base64,' in data:
-                header, data = data.split(';base64,')
-
+        if 'data:' in data and ';base64,' in data:
+            header, data = data.split(';base64,')
         try:
             decoded_file = base64.b64decode(data)
         except TypeError:

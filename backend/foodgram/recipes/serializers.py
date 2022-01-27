@@ -37,6 +37,7 @@ class RecipeRetrieveSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField(read_only=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -70,6 +71,9 @@ class RecipeRetrieveSerializer(serializers.ModelSerializer):
             return False
         return ShoppingCart.objects.filter(user=request.user,
                                            recipe=obj).exists()
+
+    def get_image(self, obj):
+        return obj.image.url
 
 
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
@@ -152,15 +156,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Количество ингредиента должно быть больше нуля'
                 )
-            list_ingredients.append(ingredient)
+            list_ingredients.append(ingredient['id'])
         if not list_ingredients:
             raise serializers.ValidationError(
                 'Нужно добавить хотя бы один ингредиент'
             )
-        unique_ingredients = []
-        for ingredient in ingredients:
-            unique_ingredients.append(ingredient['id'])
-        if len(list_ingredients) != len(set(unique_ingredients)):
+        if len(list_ingredients) != len(set(list_ingredients)):
             raise serializers.ValidationError(
                 'Ингредиенты не должны повторяться'
             )
