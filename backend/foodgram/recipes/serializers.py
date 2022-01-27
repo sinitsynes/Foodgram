@@ -59,7 +59,7 @@ class RecipeRetrieveSerializer(serializers.ModelSerializer):
         return RecipeIngredientReadSerializer(queryset, many=True).data
 
     def get_image(self, obj):
-        return obj.image.url
+        return obj.image
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
