@@ -1,10 +1,9 @@
-from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import Recipe
-from recipes.serializers import ShortRecipeListSerializer
 from rest_framework import serializers
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Follow, User
+from recipes.models import Recipe
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -19,12 +18,15 @@ class UserCreateSerializer(UserCreateSerializer):
         ]
 
 
-class UserSerializer(UserSerializer):
+class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta(UserSerializer.Meta):
-        fields = ('id', 'username', 'email',
-                  'first_name', 'last_name', 'is_subscribed')
+        fields = (
+            'id', 'username', 'email',
+            'first_name', 'last_name',
+            'is_subscribed'
+        )
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -35,34 +37,25 @@ class UserSerializer(UserSerializer):
 
 
 class FollowRetrieveSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-    id = serializers.ReadOnlyField()
-    first_name = serializers.ReadOnlyField()
-    last_name = serializers.ReadOnlyField()
-    username = serializers.ReadOnlyField()
-    email = serializers.ReadOnlyField()
     recipes_count = serializers.SerializerMethodField()
-    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = Follow
-        fields = ('id', 'username', 'email', 'first_name',
-                  'last_name', 'recipes', 'recipes_count',
-                  'is_subscribed',)
+        model = User
+        fields = ('author', 'recipes', 'recipes_count',)
 
     def get_recipes(self, obj):
+        from recipes.serializers import ShortRecipeListSerializer
+
         queryset = Recipe.objects.filter(author=obj)
         return ShortRecipeListSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
 
-    def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        user = request.user
-        return Follow.objects.filter(author=obj, user=user).exists()
+    def get_author(self, obj):
+        return CustomUserSerializer(obj).data
 
 
 class FollowCreateSerializer(serializers.ModelSerializer):
@@ -92,6 +85,6 @@ class FollowCreateSerializer(serializers.ModelSerializer):
                 'Нельзя подписаться на одного автора дважды'
             )
         return data
-
+    
     def to_representation(self, instance):
         return FollowRetrieveSerializer(instance).data

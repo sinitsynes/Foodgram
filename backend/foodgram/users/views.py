@@ -18,7 +18,6 @@ class FollowCreateViewSet(viewsets.ModelViewSet):
         author = get_object_or_404(User, id=author_id)
         user = request.user
         Follow.objects.filter(user=user, author=author).delete()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
